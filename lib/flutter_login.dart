@@ -218,6 +218,8 @@ class FlutterLogin extends StatefulWidget {
     this.logoTag,
     this.titleTag,
     this.showDebugButtons = false,
+    this.onGoogleLogin,
+    this.onFacebookLogin,
   }) : super(key: key);
 
   /// Called when the user hit the submit button when in sign up mode
@@ -228,6 +230,12 @@ class FlutterLogin extends StatefulWidget {
 
   /// Called when the user hit the submit button when in recover password mode
   final RecoverCallback onRecoverPassword;
+
+  /// Called when the user hit the google login buttton
+  final Function onGoogleLogin;
+
+  /// Called when the user hit the facebook login buttton
+  final Function onFacebookLogin;
 
   /// The large text above the login [Card], usually the app or company name
   final String title;
@@ -581,6 +589,8 @@ class _FlutterLoginState extends State<FlutterLogin>
                         passwordValidator: passwordValidator,
                         onSubmit: _reverseHeaderAnimation,
                         onSubmitCompleted: widget.onSubmitAnimationCompleted,
+                        onGoogleLogin: widget.onGoogleLogin,
+                        onFacebookLogin: widget.onFacebookLogin,
                       ),
                     ),
                     Positioned(

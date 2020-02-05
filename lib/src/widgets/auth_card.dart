@@ -28,6 +28,8 @@ class AuthCard extends StatefulWidget {
     this.passwordValidator,
     this.onSubmit,
     this.onSubmitCompleted,
+    this.onGoogleLogin,
+    this.onFacebookLogin,
   }) : super(key: key);
 
   final EdgeInsets padding;
@@ -36,6 +38,8 @@ class AuthCard extends StatefulWidget {
   final FormFieldValidator<String> passwordValidator;
   final Function onSubmit;
   final Function onSubmitCompleted;
+  final Function onGoogleLogin;
+  final Function onFacebookLogin;
 
   @override
   AuthCardState createState() => AuthCardState();
@@ -99,7 +103,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     // replace 0 with minPositive to pass the test
     // https://github.com/flutter/flutter/issues/42527#issuecomment-575131275
     _cardOverlayHeightFactorAnimation =
-        Tween<double>(begin: double.minPositive, end: 1.0).animate(CurvedAnimation(
+        Tween<double>(begin: double.minPositive, end: 1.0)
+            .animate(CurvedAnimation(
       parent: _routeTransitionController,
       curve: Interval(.27272727, .5 /* ~250ms */, curve: Curves.linear),
     ));
@@ -294,6 +299,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                         widget?.onSubmitCompleted();
                       });
                     },
+                    onGoogleLogin: widget.onGoogleLogin,
+                    onFacebookLogin: widget.onFacebookLogin,
                   ),
                 )
               : _RecoverCard(
@@ -326,15 +333,17 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 }
 
 class _LoginCard extends StatefulWidget {
-  _LoginCard({
-    Key key,
-    this.loadingController,
-    @required this.emailValidator,
-    @required this.passwordValidator,
-    @required this.onSwitchRecoveryPassword,
-    this.onSwitchAuth,
-    this.onSubmitCompleted,
-  }) : super(key: key);
+  _LoginCard(
+      {Key key,
+      this.loadingController,
+      @required this.emailValidator,
+      @required this.passwordValidator,
+      @required this.onSwitchRecoveryPassword,
+      this.onSwitchAuth,
+      this.onSubmitCompleted,
+      this.onGoogleLogin,
+      this.onFacebookLogin})
+      : super(key: key);
 
   final AnimationController loadingController;
   final FormFieldValidator<String> emailValidator;
@@ -342,6 +351,8 @@ class _LoginCard extends StatefulWidget {
   final Function onSwitchRecoveryPassword;
   final Function onSwitchAuth;
   final Function onSubmitCompleted;
+  final Function onGoogleLogin;
+  final Function onFacebookLogin;
 
   @override
   _LoginCardState createState() => _LoginCardState();
@@ -540,7 +551,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildConfirmPasswordField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildConfirmPasswordField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedPasswordTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
@@ -576,16 +588,19 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           style: theme.textTheme.body1,
           textAlign: TextAlign.left,
         ),
-        onPressed: buttonEnabled ? () {
-          // save state to populate email field on recovery card
-          _formKey.currentState.save();
-          widget.onSwitchRecoveryPassword();
-        } : null,
+        onPressed: buttonEnabled
+            ? () {
+                // save state to populate email field on recovery card
+                _formKey.currentState.save();
+                widget.onSwitchRecoveryPassword();
+              }
+            : null,
       ),
     );
   }
 
-  Widget _buildSubmitButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSubmitButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return ScaleTransition(
       scale: _buttonScaleAnimation,
       child: AnimatedButton(
@@ -596,7 +611,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSwitchAuthButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSwitchAuthButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return FadeIn(
       controller: _loadingController,
       offset: .5,
@@ -612,6 +628,96 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
         padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textColor: theme.primaryColor,
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return ScaleTransition(
+      scale: _buttonScaleAnimation,
+      child: AnimatedContainer(
+        duration: _submitController.duration,
+        margin: EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(
+                  thickness: 1,
+                ),
+              ),
+            ),
+            Text('or'),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(
+                  thickness: 1,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialButton(String letter, String message, Color primaryColor,
+      Color secondaryColor, Function onPressed) {
+    return ScaleTransition(
+      scale: _buttonScaleAnimation,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: AnimatedContainer(
+          duration: _submitController.duration,
+          height: 30,
+          margin: EdgeInsets.symmetric(vertical: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(5),
+                        topLeft: Radius.circular(5)),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(letter,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400)),
+                ),
+              ),
+              Expanded(
+                flex: 5,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: secondaryColor,
+                    borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(5),
+                        topRight: Radius.circular(5)),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(message,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -664,13 +770,42 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             child: _buildConfirmPasswordField(textFieldWidth, messages, auth),
           ),
           Container(
-            padding: Paddings.fromRBL(cardPadding),
+            padding: EdgeInsets.symmetric(horizontal: cardPadding),
             width: cardWidth,
             child: Column(
               children: <Widget>[
                 _buildForgotPassword(theme, messages),
                 _buildSubmitButton(theme, messages, auth),
                 _buildSwitchAuthButton(theme, messages, auth),
+              ],
+            ),
+          ),
+          Container(
+            padding: Paddings.fromRBL(cardPadding),
+            width: cardWidth,
+            child: Column(
+              children: <Widget>[
+                widget.onGoogleLogin != null || widget.onFacebookLogin != null
+                    ? _divider()
+                    : Container(),
+                widget.onGoogleLogin != null
+                    ? _buildSocialButton(
+                        'G',
+                        'Log in with Google',
+                        Color(0xffC53126),
+                        Color(0xffF44336),
+                        widget.onGoogleLogin,
+                      )
+                    : Container(),
+                widget.onFacebookLogin != null
+                    ? _buildSocialButton(
+                        'f',
+                        'Log in with Facebook',
+                        Color(0xff1959a9),
+                        Color(0xff2872ba),
+                        widget.onGoogleLogin,
+                      )
+                    : Container()
               ],
             ),
           ),
@@ -755,7 +890,8 @@ class _RecoverCardState extends State<_RecoverCard>
     }
   }
 
-  Widget _buildRecoverNameField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildRecoverNameField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       controller: _nameController,
       width: width,
@@ -780,10 +916,12 @@ class _RecoverCardState extends State<_RecoverCard>
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
     return FlatButton(
       child: Text(messages.goBackButton),
-      onPressed: !_isSubmitting ? () {
-        _formRecoverKey.currentState.save();
-        widget.onSwitchLogin();
-      } : null,
+      onPressed: !_isSubmitting
+          ? () {
+              _formRecoverKey.currentState.save();
+              widget.onSwitchLogin();
+            }
+          : null,
       padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       textColor: theme.primaryColor,

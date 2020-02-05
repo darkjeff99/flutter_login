@@ -20,6 +20,8 @@ Property |   Type     | Desciption
 onSignup |   `AuthCallback`     | <sub>Called when the user hit the submit button when in sign up mode</sub>
 onLogin |   `AuthCallback`     | <sub>Called when the user hit the submit button when in login mode</sub>
 onRecoverPassword |   `RecoverCallback`     | <sub>Called when the user hit the submit button when in recover password mode</sub>
+onGoogleLogin | `Function` | <sub>Called when the user hit the google login buttom</sub>
+onFacebookLogin | `Function` | <sub>Called when the user hit the facebook login buttom</sub>
 title |   `String`     | <sub>The large text above the login [Card], usually the app or company name. Leave the string empty or null if you want no title.</sub>
 logo |   `String`     | <sub>The path to the asset image that will be passed to the `Image.asset()`</sub>
 messages |   [`LoginMessages`](#LoginMessages)     | <sub>Describes all of the labels, text hints, button texts and other auth descriptions</sub>
