@@ -803,7 +803,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
                         'Log in with Facebook',
                         Color(0xff1959a9),
                         Color(0xff2872ba),
-                        widget.onGoogleLogin,
+                        widget.onFacebookLogin,
                       )
                     : Container()
               ],
